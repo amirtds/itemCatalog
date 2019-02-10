@@ -1,0 +1,37 @@
+from database_setup import User, Category, Item
+from sqlalchemy.ext.declarative import declarative_base
+from flask import Flask, render_template, url_for, request, redirect, flash, jsonify
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+
+engine = create_engine('sqlite:///itemsCatalog.db')
+Base = declarative_base()
+Base.metadata.bind = engine
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
+
+newUser = User(
+                username = "amir",
+                email = "amirtds@gmail.com",
+                firstname = "amir",
+                lastname = "tadrisi",
+                )
+newUser.hash_password("qd8@!V-%$#iW")
+session.add(newUser)
+
+newCategory = Category(
+                        name="IT",
+                        description="Articles related to computers",
+                        created_by_id=newUser.id,
+                        )
+session.add(newCategory)
+
+newItem = Item(
+                name="Flask programming",
+                category_id=newCategory.id,
+                created_by_id=newUser.id,
+                description="Flask programming is awesome and easy",
+                )
+session.add(newItem)
+session.commit()
