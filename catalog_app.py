@@ -12,6 +12,14 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route("/register")
+def register():
+    return render_template("register.html")
+
 @app.route("/catalog/catalogname")
 def show_items_in_category():
     return render_template("catalogView.html")
