@@ -64,6 +64,7 @@ class Item(Base):
     created_by_id = Column(Integer, ForeignKey('users.id'))
     created_by = relationship(User)
     description = Column(String(250), nullable=False)
+    created_on = Column(DateTime, nullable=False,default=datetime.utcnow)
 
     @property
     def serialize(self):
