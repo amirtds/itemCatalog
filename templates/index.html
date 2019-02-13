@@ -11,8 +11,9 @@
         <h1 class="my-4">Categories</h1>
         <div class="list-group">
           {% for category in categories %}
-            <a href="#" data-buttoncategory="{{ category.name }}" class="list-group-item active category-button">{{ category.name }}</a>
+            <a onclick='categoryItems("{{ category.name }}", this.id)' href="#" id="{{ category.name }}" class="list-group-item category-button">{{ category.name }}</a>
           {% endfor %}
+          <a href="#" class="btn btn-success">Create new category</a>
         </div>
       </div>
       <!-- /.col-lg-3 -->
@@ -24,14 +25,14 @@
           </div>
           <div class="card-body">
             {% for item in items %}
-              <div class="item-card" data-itemcategory="{{ item.category.name }}">
+              <div class="item-card" id="item-{{ item.category.name }}">
                 <h3>{{ item.name }}</h3>
                 <p>{{ item.description }}</p>
-                <small class="text-muted">Posted by {{ item.created_by }} on {{ item.created_on.strftime("%d %b %Y %I:%M %p")  }}</small>
+                <small class="text-muted">Posted by {{ item.created_by.username }} on {{ item.created_on.strftime("%d %b %Y %I:%M %p")  }}</small>
                 <hr>
               </div>
             {% endfor %}
-            <a href="#" class="btn btn-success">Create an item</a>
+            <a href="#" class="btn btn-success">Create new item</a>
           </div>
         </div>
         <!-- /.card -->
@@ -47,25 +48,18 @@
 
   {% block js%}
     <script type="text/javascript">
-      $(document).ready(function(){
-            var active_category = $("a.active").data();
-            var items = $(".item-card");
-            items.each(function( index ) {
-              if($(this).data().itemcategory != active_category.buttoncategory){
-                $(this).hide()
-              }
-            });
-
-
-            $(".category-button").click(function() {
-                var button_category = $(".category-button").data();
-                var items = $(".item-card");
-                items.each(function( index ) {
-                  if($(this).data().itemcategory != button_category.buttoncategory){
-                    $(this).hide()
-                  }
-                  });
-                });
-      });
+      function categoryItems(id,clicked_id) {
+        var items = $(".item-card");
+        items.each(function() {
+          $('.category-button').removeClass("active")
+          $("#"+clicked_id).addClass("active");
+          if($(this).attr('id').replace('item-','').toString() != id.toString()){
+            $(this).hide()
+          }
+          else{
+            $(this).show()
+          }
+        });
+      }
     </script>
   {% endblock %}
