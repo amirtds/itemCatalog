@@ -29,10 +29,12 @@
                 <h3>{{ item.name }}</h3>
                 <p>{{ item.description }}</p>
                 <small class="text-muted">Posted by {{ item.created_by.username }} on {{ item.created_on.strftime("%d %b %Y %I:%M %p")  }}</small>
+                <a href='{{ url_for("item_edit",item_name=item.name) }}' class="btn btn-info">Edit</a>
+                <a href='{{ url_for("item_delete",item_name="{{ item.name }}") }}' class="btn btn-warning">Delete</a>
                 <hr>
               </div>
             {% endfor %}
-            <a href="#" class="btn btn-success">Create new item</a>
+            <a href='{{ url_for("item_new")}}' class="btn btn-success">Create new item</a>
           </div>
         </div>
         <!-- /.card -->

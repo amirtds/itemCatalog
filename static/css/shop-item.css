@@ -6,3 +6,11 @@
 body {
   padding-top: 56px;
 }
+
+#login-form input {
+  margin: 20px;
+}
+
+#registrationForm input{
+  margin: 10px;
+}

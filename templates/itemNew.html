@@ -1,24 +1,26 @@
 {% extends "main.html" %}
 
-{% block title %} | Register {% endblock %}
+{% block title %} | Create New Item {% endblock %}
 
 <!-- Page Content -->
 {% block content %}
 
-<form>
+<form action="{{ url_for("item_new")}}" method="POST">
   <label>Item Name: </label>
-  <input type="text">
-  </br>
+  <input name="item_name" type="text">
+  <br>
   <label>Item Description: </label>
-  <input type="text">
-  </br>
+  <input name="item_description" type="text">
+  <br>
   <label>Item Category: </label>
-  <select name="categories">
+  <select name="item_category">
     <option value="volvo">Volvo</option>
     <option value="saab">Saab</option>
     <option value="fiat">Fiat</option>
     <option value="audi">Audi</option>
   </select>
+  <br>
+  <input type="submit" value="Submit">
 </form>
 
 {% endblock %}
