@@ -37,12 +37,19 @@
               <span class="sr-only">(current)</span>
             </a>
           </li>
+          {% if not session['user'] %}
           <li class="nav-item" style="background: #0585ff;padding: 0 0.5rem;">
             <a class="nav-link" href="{{ url_for("login") }}" style="color: #fff;">Login</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for("register") }}">Register</a>
           </li>
+          {% endif %}
+          {% if session['user'] %}
+          <li class="nav-item" style="background: #0585ff;padding: 0 0.5rem;">
+            <a class="nav-link" href="{{ url_for("logout") }}" style="color: #fff;">Logout</a>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </div>

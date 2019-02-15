@@ -1,24 +1,31 @@
 {% extends "main.html" %}
 
-{% block title %} | Register {% endblock %}
+{% block title %} | Create New Item {% endblock %}
 
 <!-- Page Content -->
 {% block content %}
 
-<form>
+<form action="{{ url_for('item_edit',item_name=item.name)}}" method="POST">
   <label>Item Name: </label>
-  <input type="text">
-  </br>
+  <input name="item_name" type="text" required value="{{item.name}}">
+  <br>
   <label>Item Description: </label>
-  <input type="text">
-  </br>
+  <textarea name="item_description" rows="4" cols="50" required>
+    {{item.description}}
+  </textarea>
+  <br>
   <label>Item Category: </label>
-  <select name="categories">
-    <option value="volvo">Volvo</option>
-    <option value="saab">Saab</option>
-    <option value="fiat">Fiat</option>
-    <option value="audi">Audi</option>
+  <select name="item_category">
+    {% for category in categories %}
+        {% if item.category.name == category.name  %}
+          <option selected value="{{ category.name }}">{{ category.name }}</option>
+        {% else %}
+          <option value="{{ category.name }}">{{ category.name }}</option>
+        {% endif %}
+    {% endfor %}
   </select>
+  <br>
+  <input type="submit" value="Submit" class="btn btn-warning">
 </form>
 
 {% endblock %}

@@ -13,7 +13,9 @@
           {% for category in categories %}
             <a onclick='categoryItems("{{ category.name }}", this.id)' href="#" id="{{ category.name }}" class="list-group-item category-button">{{ category.name }}</a>
           {% endfor %}
-          <a href="#" class="btn btn-success">Create new category</a>
+          {% if session['user'] %}
+          <a href="{{ url_for('category_new') }}" class="btn btn-success">Create new category</a>
+          {% endif %}
         </div>
       </div>
       <!-- /.col-lg-3 -->
@@ -29,12 +31,16 @@
                 <h3>{{ item.name }}</h3>
                 <p>{{ item.description }}</p>
                 <small class="text-muted">Posted by {{ item.created_by.username }} on {{ item.created_on.strftime("%d %b %Y %I:%M %p")  }}</small>
+                {% if session['user'] == item.created_by.username %}
                 <a href='{{ url_for("item_edit",item_name=item.name) }}' class="btn btn-info">Edit</a>
-                <a href='{{ url_for("item_delete",item_name="{{ item.name }}") }}' class="btn btn-warning">Delete</a>
+                <a href='{{ url_for("item_delete",item_name=item.name) }}' class="btn btn-warning">Delete</a>
+                {% endif %}
                 <hr>
               </div>
             {% endfor %}
+            {% if session['user'] %}
             <a href='{{ url_for("item_new")}}' class="btn btn-success">Create new item</a>
+            {% endif %}
           </div>
         </div>
         <!-- /.card -->

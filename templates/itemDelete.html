@@ -5,6 +5,10 @@
 <!-- Page Content -->
 {% block content %}
 
-Register page
+<form action="{{ url_for('item_delete',item_name=item.name)}}" method="POST">
+  <label>Are you sure you want to delete {{ item.name }}</label>
+  <br>
+  <input type="submit" value="Yes" class="btn btn-warning">
+</form>
 
 {% endblock %}

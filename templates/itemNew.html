@@ -7,20 +7,20 @@
 
 <form action="{{ url_for("item_new")}}" method="POST">
   <label>Item Name: </label>
-  <input name="item_name" type="text">
+  <input name="item_name" type="text" required>
   <br>
   <label>Item Description: </label>
-  <input name="item_description" type="text">
+  <textarea name="item_description" rows="4" cols="50" required>
+  </textarea>
   <br>
   <label>Item Category: </label>
   <select name="item_category">
-    <option value="volvo">Volvo</option>
-    <option value="saab">Saab</option>
-    <option value="fiat">Fiat</option>
-    <option value="audi">Audi</option>
+    {% for category in categories %}
+      <option value="{{ category.name }}">{{ category.name }}</option>
+    {% endfor %}
   </select>
   <br>
-  <input type="submit" value="Submit">
+  <input type="submit" value="Submit" class="btn btn-warning">
 </form>
 
 {% endblock %}

@@ -1,0 +1,19 @@
+{% extends "main.html" %}
+
+{% block title %} | Create New Category {% endblock %}
+
+<!-- Page Content -->
+{% block content %}
+
+<form action="{{ url_for("category_new")}}" method="POST" id="categoryNew">
+  <label>Category Name: </label>
+  <input style="margin-left: 60px" name="category_name" type="text">
+  <br>
+  <label>Category Description: </label>
+  <input name="category_description" type="text">
+  <br>
+  <br>
+  <input type="submit" class="btn btn-warning" value="Submit">
+</form>
+
+{% endblock %}

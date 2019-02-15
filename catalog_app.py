@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect, flash, jsonify
+from flask import Flask, render_template, url_for, request, redirect, flash, jsonify, session, g
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import User, Category, Item
@@ -20,13 +20,11 @@ DBSession = sessionmaker(bind=engine)
 
 app = Flask(__name__)
 
-is_authenticated = False
-
 @app.route("/")
-def index(is_authenticated):
-    session = DBSession()
-    categories = session.query(Category).all()
-    items = session.query(Item).all()
+def index(is_authenticated=False):
+    dbsession = DBSession()
+    categories = dbsession.query(Category).all()
+    items = dbsession.query(Item).all()
     return render_template("index.html", categories=categories, items=items)
 
 @app.route("/login", methods=["GET","POST"])
@@ -37,17 +35,23 @@ def login():
         try:
             username = request.form['username']
             password = request.form['password']
-            session = DBSession()
-            user = session.query(User).filter_by(username=username).one()
+            # clean up any session
+            session.pop('user', None)
+            dbsession = DBSession()
+            user = dbsession.query(User).filter_by(username=username).one()
             if user.verify_password(password):
-                is_authenticated = True
-                return redirect(url_for('index'))
+                # set the session if the credentials is right
+                session['user'] = username
+                return redirect(url_for("index"))
             else:
-                return "Wrong usrname or Password"
+                return redirect(url_for("login"))
         except:
-            return "authentication failed"
+            return redirect(url_for("login"))
 
-
+@app.route("/logout")
+def logout():
+    session.pop('user', None)
+    return redirect(url_for("index"))
 
 @app.route("/register", methods=["GET","POST"])
 def register():
@@ -60,7 +64,7 @@ def register():
             firstname = request.form['firstname']
             lastname = request.form['lastname']
             password = request.form['password']
-            session = DBSession()
+            dbsession = DBSession()
             newUser = User(
                 username = username,
                 email = email,
@@ -68,32 +72,100 @@ def register():
                 lastname = lastname,
             )
             newUser.hash_password(password)
-            session.add(newUser)
-            session.commit()
+            dbsession.add(newUser)
+            dbsession.commit()
             return render_template("index.html")
         except:
-            return "registration failed"
+            return redirect(url_for("register"))
 
 @app.route("/catalog/<category_name>")
 def show_items_in_category(category_name):
     return render_template("catalogView.html")
 
+@app.route("/categories/new", methods=['GET','POST'])
+def category_new():
+    if session:
+        if request.method == "GET":
+            return render_template("categoryNew.html")
+        elif request.method == "POST":
+            category_name = request.form['category_name']
+            category_description = request.form['category_description']
+            dbsession = DBSession()
+            creator = dbsession.query(User).filter_by(username=session['user']).one()
+            print creator
+            newCategory = Category(
+                                   name=category_name,
+                                   description=category_description,
+                                   created_by_id=creator.id
+                                   )
+            dbsession.add(newCategory)
+            dbsession.commit()
+            return redirect(url_for("index"))
+    else:
+        return redirect(url_for('login'))
+
 @app.route("/items/new", methods=['GET','POST'])
 def item_new():
-    if request.method == "GET":
-        return render_template("itemNew.html")
+    if session:
+        dbsession = DBSession()
+        categories = dbsession.query(Category).all()
+        items = dbsession.query(Item).all()
+        if request.method == "GET":
+            return render_template("itemNew.html", categories=categories, items=items)
+        elif request.method == "POST":
+            newItemName = request.form['item_name']
+            newItemDescription = request.form['item_description']
+            newItemCategory = request.form['item_category']
+            creator = dbsession.query(User).filter_by(username=session['user']).one()
+            category= dbsession.query(Category).filter_by(name=newItemCategory).one()
+            newItem = Item(name=newItemName,
+                           category_id = category.id,
+                           created_by_id=creator.id,
+                           description=newItemDescription)
+            dbsession.add(newItem)
+            dbsession.commit()
+            return redirect(url_for("index"))
     else:
-        return "Hi post request"
+        return redirect(url_for('login'))
 
-@app.route("/items/edit/<item_name>")
+@app.route("/items/edit/<item_name>", methods=['GET','POST'])
 def item_edit(item_name):
-    return render_template("itemEdit.html")
+    if session:
+        dbsession = DBSession()
+        dbsession = DBSession()
+        item = dbsession.query(Item).filter_by(name=item_name).one()
+        categories = dbsession.query(Category).all()
+        if request.method == "GET":
+            return render_template("itemEdit.html", item=item,categories=categories)
+        elif request.method == "POST":
+            editItemName = request.form['item_name']
+            editItemDescription = request.form['item_description']
+            editItemCategory = request.form['item_category']
+            category= dbsession.query(Category).filter_by(name=editItemCategory).one()
+            item.name = editItemName
+            item.description = editItemDescription
+            item.category_id = category.id
+            dbsession.add(item)
+            dbsession.commit()
+            return redirect(url_for("index"))
+    else:
+        return redirect(url_for('login'))
 
-@app.route("/items/edit/<item_name>")
+@app.route("/items/delete/<item_name>", methods=['GET','POST'])
 def item_delete(item_name):
-    return render_template("itemDelete.html")
+    if session:
+        dbsession = DBSession()
+        item = dbsession.query(Item).filter_by(name=item_name).one()
+        if request.method=="GET":
+            return render_template("itemDelete.html", item=item)
+        elif request.method=="POST":
+            dbsession.delete(item)
+            dbsession.commit()
+            return redirect(url_for("index"))
+    else:
+        redirect(url_for("login"))
 
 if __name__ == "__main__":
-    app.secret_key = 'super_secret_key'
+    app.secret_key = 'ni8Ou19UcJwvy2ozE1CEVHGlOXEcjKfO'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
