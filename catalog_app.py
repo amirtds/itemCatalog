@@ -61,7 +61,7 @@ def login():
                 flash("Creadentials provided are incorrect",category='error')
                 return redirect(url_for("login"))
         except Exception as e:
-            flash(e,category='error')
+            flash("User not found",category='error')
             return redirect(url_for("login"))
 
 
@@ -99,7 +99,7 @@ def register():
             dbsession.commit()
             return render_template("login.html")
         except Exception as e:
-            flash(e,category='error')
+            flash("Registration failed",category='error')
             return redirect(url_for("register"))
 
 
