@@ -5,7 +5,17 @@
 <!-- Page Content -->
 {% block content %}
 
-
+{% with errors = get_flashed_messages(category_filter=["error"]) %}
+  {% if errors %}
+    <div class=flashes>
+    {% for error in errors %}
+      <span class="alert alert-danger">{{ error }}</span>
+      <br>
+      <br>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
 <div class="wrapper fadeInDown">
   <div id="login-form">

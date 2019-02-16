@@ -55,10 +55,13 @@ def login():
             if user.verify_password(password):
                 # set the session if the credentials is right
                 session['user'] = username
+                flash("Welcome {username}".format(username=username))
                 return redirect(url_for("index"))
             else:
+                flash("Creadentials provided are incorrect",category='error')
                 return redirect(url_for("login"))
         except Exception as e:
+            flash(e,category='error')
             return redirect(url_for("login"))
 
 
@@ -66,6 +69,7 @@ def login():
 def logout():
     # clean up the session
     session.pop('user', None)
+    flash("Looking foward to see you again")
     return redirect(url_for("index"))
 
 
@@ -95,6 +99,7 @@ def register():
             dbsession.commit()
             return render_template("login.html")
         except Exception as e:
+            flash(e,category='error')
             return redirect(url_for("register"))
 
 
@@ -118,8 +123,10 @@ def category_new():
                                    )
             dbsession.add(newCategory)
             dbsession.commit()
+            flash("category {category_name} created".format(category_name=category_name))
             return redirect(url_for("index"))
     else:
+        flash("You don't have enough permission",category='error')
         return redirect(url_for('login'))
 
 
@@ -152,6 +159,7 @@ def item_new():
                            description=newItemDescription)
             dbsession.add(newItem)
             dbsession.commit()
+            flash("item {newItemName} created".format(newItemName=newItemName))
             return redirect(url_for("index"))
     else:
         return redirect(url_for('login'))
@@ -183,8 +191,10 @@ def item_edit(item_name):
                         item.category_id = category.id
                         dbsession.add(item)
                         dbsession.commit()
+                        flash("{editItemName} edition was succesful".format(editItemName=editItemName))
                         return redirect(url_for("index"))
             else:
+                flash("You don't have enough permission",category='error')
                 return redirect(url_for("index"))
     else:
         return redirect(url_for('login'))
@@ -201,8 +211,14 @@ def item_delete(item_name):
             elif request.method == "POST":
                 dbsession.delete(item)
                 dbsession.commit()
+                flash(
+                "{item_name} deletion succesful".format(
+                                            item_name=item_name
+                                            )
+                    )
                 return redirect(url_for("index"))
         else:
+            flash("You don't have enough permission",category='error')
             return redirect(url_for("index"))
     else:
         redirect(url_for("login"))

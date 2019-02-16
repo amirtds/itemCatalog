@@ -5,6 +5,22 @@
   <!-- Page Content -->
   {% block content %}
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class=flashes>
+      {% for category, message in messages %}
+        {% if category=="error" %}
+          <span class="alert alert-danger">{{ message }}</span>
+        {% else %}
+          <span class="alert alert-success">{{ message }}</span>
+        {% endif %}
+        <br>
+        <br>
+      {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
     <div class="row">
 
       <div class="col-lg-3">
