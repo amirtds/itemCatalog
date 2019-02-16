@@ -240,4 +240,4 @@ def catalog_json():
 if __name__ == "__main__":
     app.secret_key = 'ni8Ou19UcJwvy2ozE1CEVHGlOXEcjKfO'
     app.debug = True
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0')
