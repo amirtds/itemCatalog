@@ -15,7 +15,8 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 
-engine = create_engine('sqlite:///itemsCatalog.db')
+db_string = 'postgresql://catalogapp:O2NwGz8O5wd73Qkq6K2nxSCfFPSa5O5Y@localhost:5432/catalog'
+engine = create_engine(db_string)
 Base = declarative_base()
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
