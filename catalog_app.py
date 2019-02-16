@@ -43,7 +43,7 @@ def index(is_authenticated=False):
 def login():
     if request.method == "GET":
         return render_template("login.html")
-    else:
+    elif request.method == "POST":
         try:
             # get username and password user input in the login form
             username = request.form['username']
