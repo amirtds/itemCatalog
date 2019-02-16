@@ -160,28 +160,32 @@ def item_new():
 @app.route("/items/edit/<item_name>", methods=['GET', 'POST'])
 def item_edit(item_name):
     if session:
-        dbsession = DBSession()
-        dbsession = DBSession()
-        item = dbsession.query(Item).filter_by(name=item_name).one()
-        categories = dbsession.query(Category).all()
-        if request.method == "GET":
-            return render_template(
-                                    "itemEdit.html",
-                                    item=item,
-                                    categories=categories)
-        elif request.method == "POST":
-            editItemName = request.form['item_name']
-            editItemDescription = request.form['item_description']
-            editItemCategory = request.form['item_category']
-            category = dbsession.query(Category).filter_by(
-                                                        name=editItemCategory
-                                                        ).one()
-            item.name = editItemName
-            item.description = editItemDescription
-            item.category_id = category.id
-            dbsession.add(item)
-            dbsession.commit()
-            return redirect(url_for("index"))
+            dbsession = DBSession()
+            dbsession = DBSession()
+            item = dbsession.query(Item).filter_by(name=item_name).one()
+            categories = dbsession.query(Category).all()
+            if session['user'] == item.created_by.username :
+                if request.method == "GET":
+                    return render_template(
+                                            "itemEdit.html",
+                                            item=item,
+                                            categories=categories)
+                elif request.method == "POST":
+
+                        editItemName = request.form['item_name']
+                        editItemDescription = request.form['item_description']
+                        editItemCategory = request.form['item_category']
+                        category = dbsession.query(Category).filter_by(
+                                                                    name=editItemCategory
+                                                                    ).one()
+                        item.name = editItemName
+                        item.description = editItemDescription
+                        item.category_id = category.id
+                        dbsession.add(item)
+                        dbsession.commit()
+                        return redirect(url_for("index"))
+            else:
+                return redirect(url_for("index"))
     else:
         return redirect(url_for('login'))
 
@@ -191,11 +195,14 @@ def item_delete(item_name):
     if session:
         dbsession = DBSession()
         item = dbsession.query(Item).filter_by(name=item_name).one()
-        if request.method == "GET":
-            return render_template("itemDelete.html", item=item)
-        elif request.method == "POST":
-            dbsession.delete(item)
-            dbsession.commit()
+        if session['user'] == item.created_by.username :
+            if request.method == "GET":
+                return render_template("itemDelete.html", item=item)
+            elif request.method == "POST":
+                dbsession.delete(item)
+                dbsession.commit()
+                return redirect(url_for("index"))
+        else:
             return redirect(url_for("index"))
     else:
         redirect(url_for("login"))
