@@ -10,6 +10,9 @@ import httplib2
 import json
 from flask import make_response
 import requests
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 
 engine = create_engine('sqlite:///itemsCatalog.db')
 Base = declarative_base()
@@ -19,6 +22,12 @@ DBSession = sessionmaker(bind=engine)
 
 
 app = Flask(__name__)
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["100 per day", "30 per hour"]
+)
+
 
 @app.route("/")
 def index(is_authenticated=False):
@@ -164,6 +173,16 @@ def item_delete(item_name):
             return redirect(url_for("index"))
     else:
         redirect(url_for("login"))
+
+
+@app.route("/api/catalog.json")
+@limiter.limit("100 per day")
+def catalog_json():
+    dbsession = DBSession()
+    categories = dbsession.query(Category).all()
+    items = dbsession.query(Item).all()
+    categories_list = [ category.serialize(items) for category in categories ]
+    return jsonify(Categories = categories_list)
 
 if __name__ == "__main__":
     app.secret_key = 'ni8Ou19UcJwvy2ozE1CEVHGlOXEcjKfO'

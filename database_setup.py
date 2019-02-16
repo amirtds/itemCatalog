@@ -45,14 +45,15 @@ class Category(Base):
     created_by_id = Column(Integer, ForeignKey('users.id'))
     created_by = relationship(User)
 
-    @property
-    def serialize(self):
+
+    def serialize(self, items):
         return {
                 'id':self.id,
                 'name':self.name,
                 'description':self.description,
-                'created_by':self.created_by,
-        }
+                'created_by': self.created_by.username,
+                'items':[item.serialize for item in items if item.category.name == self.name]
+                }
 
 class Item(Base):
     __tablename__ = "items"
@@ -71,10 +72,9 @@ class Item(Base):
         return {
                 'id':self.id,
                 'name':self.name,
-                'category':self.category,
-                'created_by':self.created_by,
-                'description':self.description,
-        }
+                'category':self.category.name,
+                'description':self.description
+                }
 
 
 engine = create_engine('sqlite:///itemsCatalog.db')
