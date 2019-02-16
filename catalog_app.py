@@ -73,7 +73,7 @@ def logout():
 def register():
     if request.method == "GET":
         return render_template("register.html")
-    else:
+    elif request.method == "POST":
         try:
             # get new user's information from the form
             username = request.form['username']
@@ -93,7 +93,7 @@ def register():
             newUser.hash_password(password)
             dbsession.add(newUser)
             dbsession.commit()
-            return render_template("index.html")
+            return render_template("login.html")
         except Exception as e:
             return redirect(url_for("register"))
 
