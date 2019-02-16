@@ -17,7 +17,7 @@ class User(Base):
     firstname = Column(String(250), nullable=False)
     lastname = Column(String(250), nullable=False)
     password_hashed = Column(String(250), nullable=False)
-    date_joined = Column(DateTime, nullable=False,default=datetime.utcnow)
+    date_joined = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     def hash_password(self, password):
         self.password_hashed = pwd_context.encrypt(password)
@@ -28,13 +28,14 @@ class User(Base):
     @property
     def serialize(self):
         return {
-                'id':self.id,
-                'username':self.username,
-                'email':self.email,
-                'firstname':self.firstname,
-                'lastname':self.lastname,
-                'date_joined':self.date_joined,
+                'id': self.id,
+                'username': self.username,
+                'email': self.email,
+                'firstname': self.firstname,
+                'lastname': self.lastname,
+                'date_joined': self.date_joined,
         }
+
 
 class Category(Base):
     __tablename__ = "categories"
@@ -45,15 +46,19 @@ class Category(Base):
     created_by_id = Column(Integer, ForeignKey('users.id'))
     created_by = relationship(User)
 
-
     def serialize(self, items):
         return {
-                'id':self.id,
-                'name':self.name,
-                'description':self.description,
+                'id': self.id,
+                'name': self.name,
+                'description': self.description,
                 'created_by': self.created_by.username,
-                'items':[item.serialize for item in items if item.category.name == self.name]
+                'items': [
+                          item.serialize
+                          for item in items
+                          if item.category.name == self.name
+                        ]
                 }
+
 
 class Item(Base):
     __tablename__ = "items"
@@ -65,19 +70,17 @@ class Item(Base):
     created_by_id = Column(Integer, ForeignKey('users.id'))
     created_by = relationship(User)
     description = Column(String(250), nullable=False)
-    created_on = Column(DateTime, nullable=False,default=datetime.utcnow)
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     @property
     def serialize(self):
         return {
-                'id':self.id,
-                'name':self.name,
-                'category':self.category.name,
-                'description':self.description
+                'id': self.id,
+                'name': self.name,
+                'category': self.category.name,
+                'description': self.description
                 }
 
 
 engine = create_engine('sqlite:///itemsCatalog.db')
-
-
 Base.metadata.create_all(engine)

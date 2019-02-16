@@ -22,6 +22,7 @@ DBSession = sessionmaker(bind=engine)
 
 
 app = Flask(__name__)
+# Limiting api calls with limiter lib
 limiter = Limiter(
     app,
     key_func=get_remote_address,
@@ -43,12 +44,14 @@ def login():
         return render_template("login.html")
     else:
         try:
+            # get username and password user input in the login form
             username = request.form['username']
             password = request.form['password']
             # clean up any session
             session.pop('user', None)
             dbsession = DBSession()
             user = dbsession.query(User).filter_by(username=username).one()
+            # verify user's input passwrd with the password in DB
             if user.verify_password(password):
                 # set the session if the credentials is right
                 session['user'] = username
@@ -61,6 +64,7 @@ def login():
 
 @app.route("/logout")
 def logout():
+    # clean up the session
     session.pop('user', None)
     return redirect(url_for("index"))
 
@@ -71,11 +75,13 @@ def register():
         return render_template("register.html")
     else:
         try:
+            # get new user's information from the form
             username = request.form['username']
             email = request.form['email']
             firstname = request.form['firstname']
             lastname = request.form['lastname']
             password = request.form['password']
+            # create user based on input inf in form
             dbsession = DBSession()
             newUser = User(
                 username=username,
@@ -83,6 +89,7 @@ def register():
                 firstname=firstname,
                 lastname=lastname,
             )
+            # save hashed form of the input password in db
             newUser.hash_password(password)
             dbsession.add(newUser)
             dbsession.commit()
@@ -91,24 +98,19 @@ def register():
             return redirect(url_for("register"))
 
 
-@app.route("/catalog/<category_name>")
-def show_items_in_category(category_name):
-    return render_template("catalogView.html")
-
-
 @app.route("/categories/new", methods=['GET', 'POST'])
 def category_new():
     if session:
         if request.method == "GET":
             return render_template("categoryNew.html")
         elif request.method == "POST":
+            # create new category based user's input in categoryNew
             category_name = request.form['category_name']
             category_description = request.form['category_description']
             dbsession = DBSession()
             creator = dbsession.query(User).filter_by(
                                                       username=session['user']
                                                       ).one()
-            print creator
             newCategory = Category(
                                    name=category_name,
                                    description=category_description,
@@ -134,6 +136,7 @@ def item_new():
                                     items=items
                                 )
         elif request.method == "POST":
+            # create new category based user's input
             newItemName = request.form['item_name']
             newItemDescription = request.form['item_description']
             newItemCategory = request.form['item_category']
@@ -199,12 +202,14 @@ def item_delete(item_name):
 
 
 @app.route("/api/catalog.json")
+# rate limit the api
 @limiter.limit("100 per day")
 def catalog_json():
     dbsession = DBSession()
     categories = dbsession.query(Category).all()
     items = dbsession.query(Item).all()
     categories_list = [category.serialize(items) for category in categories]
+    # return json of catagories with their items
     return jsonify(Categories=categories_list)
 
 
